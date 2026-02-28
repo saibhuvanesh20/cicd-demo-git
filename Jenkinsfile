@@ -59,6 +59,7 @@ stage('Terraform Init') {
 steps {
 echo '====> Stage 5: Initializing Terraform'
 dir(env.TF_DIR) {
+sh 'terraform fmt'
 sh 'terraform init -input=false'
 sh 'terraform validate'
 }
