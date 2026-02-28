@@ -1,7 +1,8 @@
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
 name = "${var.app_name}-cluster"
-setting { name = "containerInsights"; value = "enabled" }
+setting { name = "containerInsights"
+	  value = "enabled" }
 }
 # IAM role so ECS can pull from ECR and write to CloudWatch
 resource "aws_iam_role" "ecs_task_execution" {
