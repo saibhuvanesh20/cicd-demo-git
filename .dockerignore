@@ -1,0 +1,10 @@
+node_modules/ # Never copy local node_modules - rebuilt inside container
+.git/ # Git history not needed in image
+.gitignore
+terraform/ # IaC files are not part of the app
+Jenkinsfile # CI definition not needed in app image
+README.md
+*.log
+.env #Environment files should never be baked into images
+
+*.md
