@@ -40,44 +40,49 @@ resource "aws_ecs_task_definition" "app" {
   cpu                      = var.task_cpu
   memory                   = var.task_memory
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  container_definitions = jsonencode([{
-    name      = var.app_name
-    image     = var.ecr_image_uri
-    essential = true
-    portMappings = [
-      {
-        containerPort = var.container_port
-        protocol      = "tcp"
-      }
-    ]
 
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        "awslogs-group"         = "/ecs/${var.app_name}"
-        "awslogs-region"        = var.aws_region
-        "awslogs-stream-prefix" = "ecs"
-      }
-    }
-    healthCheck = {
-      command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
-      interval    = 30
-      timeout     = 5
-      retries     = 3
-      startPeriod = 60
-    }
+  container_definitions = jsonencode([
+    {
+      name      = var.app_name
+      image     = var.ecr_image_uri
+      essential = true
 
-    environment = [
-      {
-        name  = "NODE_ENV"
-        value = "production"
-      },
-      {
-        name  = "PORT"
-        value = tostring(var.container_port)
+      portMappings = [
+        {
+          containerPort = var.container_port
+          protocol      = "tcp"
+        }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/${var.app_name}"
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ecs"
+        }
       }
-    ]
-  }])
+
+      healthCheck = {
+        command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 60
+      }
+
+      environment = [
+        {
+          name  = "NODE_ENV"
+          value = "Non-Production"
+        },
+        {
+          name  = "PORT"
+          value = tostring(var.container_port)
+        }
+      ]
+    }
+  ])
 }
 
 # Security Groups
@@ -132,15 +137,16 @@ resource "aws_lb_target_group" "app" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip" # Required for Fargate awsvpc tasks
-}
 
-health_check {
-  path                = "/health"
-  healthy_threshold   = 2
-  unhealthy_threshold = 3
-  timeout             = 5
-  interval            = 30
-  matcher             = "200"
+
+  health_check {
+    path                = "/health"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    matcher             = "200"
+  }
 }
 
 resource "aws_lb_listener" "http" {
