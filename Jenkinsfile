@@ -107,7 +107,7 @@ echo '====> Stage 9: Running smoke test'
 sh """
 sleep 30
 STATUS=\$(curl -o /dev/null -s -w \"%{http_code}\"
-http://${env.ALB_DNS}/health)
+http://cicd-demo-app-alb-176310692.ap-south-2.elb.amazonaws.com/health)
 if [ \"\$STATUS\" != \"200\" ]; then exit 1; fi
 echo \"PASSED: http://${env.ALB_DNS} is live!\"
 """
